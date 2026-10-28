@@ -56,9 +56,8 @@
           return "<svg" + a.replace(/\s(width|height)="[^"]*"/g, "") + wh + ">" + title;
         });
     }
-    return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + v.w + " " + v.h + '"' + wh + ">" + title +
-      '<filter id="c" x="0" y="0" width="100%" height="100%"><feFlood flood-color="' + color + '"/><feComposite in2="SourceGraphic" operator="in"/></filter>' +
-      '<image filter="url(#c)" width="' + v.w + '" height="' + v.h + '" xlink:href="' + v.src + '"/></svg>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + v.w + " " + v.h + '"' + wh + ">" + title +
+      '<path fill="' + color + '" fill-rule="evenodd" d="' + v.svgd + '"/></svg>';
   }
   function vname() { return current ? "-" + current.id : ""; }
   function svgString(color, height) {
@@ -121,7 +120,7 @@
   var picker = $("#picker");
   var ORIG = { id: "original", label: "الرمز الأصلي", w: 110.75, h: 91.5,
     src: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + VIEWBOX + '" width="110.75" height="91.5"><path d="' + PATH + '"/></svg>') };
-  function pickVariant(id) {
+  function pickVariant(id, noSave) {
     var v = null;
     VARIANTS.forEach(function (x) { if (x.id === id) v = x; });
     current = v;
@@ -136,7 +135,72 @@
       root.classList.remove("has-variant");
     }
     $("#stageMark").setAttribute("aria-label", v ? v.label : ORIG.label);
+    if (!noSave) safeSet("iqd-variant", id);
+    useFont(v);
+    applyBuildMeta(v);
     refreshCode();
+    build();
+  }
+
+  /* خط الرمز المختار (الحرف U+E900 يعرض الرمز المختار) */
+  var loadedFonts = {};
+  function useFont(v) {
+    if (!v || !window.FontFace) { root.style.removeProperty("--iqd-font"); return; }
+    var fam = "IQD Symbol " + v.id;
+    if (!loadedFonts[v.id]) {
+      var ff = new FontFace(fam, 'url("' + v.font + '")', { unicodeRange: "U+E900" });
+      loadedFonts[v.id] = ff; document.fonts.add(ff); ff.load().catch(function () {});
+    }
+    root.style.setProperty("--iqd-font", '"' + fam + '"');
+  }
+
+  /* نصوص قسم البناء وإطاره حسب الرمز المختار */
+  var buildMeta = null;
+  function applyBuildMeta(v) {
+    var svg = $("#buildSvg"), spans = $$("#layers .chk span"), legend = $(".legend"), rules = $(".rules"), sub = $("#build .sec-sub");
+    if (!buildMeta) buildMeta = {
+      vb: svg.getAttribute("viewBox"), label: svg.getAttribute("aria-label"), sub: sub.textContent,
+      spans: spans.map(function (s) { return s.textContent; }), legend: legend.innerHTML, rules: rules.innerHTML
+    };
+    if (!v) {
+      svg.setAttribute("viewBox", buildMeta.vb); svg.setAttribute("aria-label", buildMeta.label);
+      sub.textContent = buildMeta.sub; legend.innerHTML = buildMeta.legend; rules.innerHTML = buildMeta.rules;
+      spans.forEach(function (s, i) { s.textContent = buildMeta.spans[i]; });
+      return;
+    }
+    var p = Math.max(v.vb[2], v.vb[3]) * 0.08, isPng = v.src.indexOf("data:image/png") === 0;
+    svg.setAttribute("viewBox", [v.vb[0] - p, v.vb[1] - p, v.vb[2] + 2 * p, v.vb[3] + 2 * p].join(" "));
+    svg.setAttribute("aria-label", "مخطط بناء الرمز المختار بقطعه ونقاطه");
+    sub.textContent = "القطع التي يتكوّن منها الرمز المختار. فعّل الطبقات لترى كل جزء.";
+    ["القطع", "نقاط الرسم", "إطار كل قطعة", "شبكة مرجعية"].forEach(function (t, i) { spans[i].textContent = t; });
+    legend.innerHTML = v.parts.map(function (x, i) {
+      return '<li><i class="dot d' + (i % 4 + 1) + '"></i> القطعة ' + (i + 1) + "</li>";
+    }).join("");
+    rules.innerHTML =
+      "<li>عدد القطع: " + v.parts.length + ".</li>" +
+      "<li>عدد نقاط الرسم: " + v.pts.length + ".</li>" +
+      "<li>نسبة العرض إلى الارتفاع: " + (v.w / v.h).toFixed(2) + ".</li>" +
+      (isPng ? "<li>القطع مستخرجة من الصورة بالتتبّع، فحوافها تقريبية.</li>" : "");
+  }
+  function buildVariant(v) {
+    var out = [], x = v.vb[0], y = v.vb[1], w = v.vb[2], h = v.vb[3];
+    var pad = Math.max(w, h) * 0.08, r = Math.max(w, h) * 0.011;
+    var X1 = x + w + pad, Y1 = y + h + pad, step = h / 10;
+    if (layers.grid) {
+      var gx, gy;
+      for (gx = x - Math.floor(pad / step) * step; gx <= X1; gx += step) out.push('<line class="vgrid" x1="' + f(gx) + '" y1="' + f(y - pad) + '" x2="' + f(gx) + '" y2="' + f(Y1) + '"/>');
+      for (gy = y - Math.floor(pad / step) * step; gy <= Y1; gy += step) out.push('<line class="vgrid" x1="' + f(x - pad) + '" y1="' + f(gy) + '" x2="' + f(X1) + '" y2="' + f(gy) + '"/>');
+    }
+    v.parts.forEach(function (q, i) {
+      out.push('<path class="' + (layers.parts ? "part p" + (i % 4 + 1) : "plain") + '" fill-rule="' + (q.eo ? "evenodd" : "nonzero") + '" d="' + q.d + '"/>');
+    });
+    if (layers.axes) v.parts.forEach(function (q) {
+      out.push('<rect class="vaxis" x="' + q.bb[0] + '" y="' + q.bb[1] + '" width="' + f(q.bb[2] - q.bb[0]) + '" height="' + f(q.bb[3] - q.bb[1]) + '"/>');
+    });
+    if (layers.circles) v.pts.forEach(function (p) {
+      out.push('<circle class="vpt" cx="' + p[0] + '" cy="' + p[1] + '" r="' + f(r) + '"/>');
+    });
+    $("#buildSvg").innerHTML = out.join("");
   }
   [ORIG].concat(VARIANTS).forEach(function (v) {
     var b = document.createElement("button");
@@ -155,7 +219,6 @@
     if (e.key === "ArrowRight") n = items[(i + items.length - 1) % items.length];
     if (n) { n.focus(); pickVariant(n.dataset.id); e.preventDefault(); }
   });
-  pickVariant("original");
 
   /* ---------- التحميل والنسخ ---------- */
   function downloadPng(px, name) {
@@ -174,6 +237,11 @@
     "png-s": function () { downloadPng(256, "iraqi-dinar-symbol" + vname() + "-small.png"); },
     "png-m": function () { downloadPng(512, "iraqi-dinar-symbol" + vname() + "-medium.png"); },
     "png-l": function () { downloadPng(1024, "iraqi-dinar-symbol" + vname() + "-large.png"); },
+    "font": function () {
+      var bin = atob(current ? current.font.split(",")[1] : window.IQD_ORIG_FONT), a = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+      saveBlob(new Blob([a], { type: "font/woff" }), "iqd-symbol" + vname() + ".woff");
+    },
     "copy-svg": function () { copyText(svgString(color), "تم نسخ كود SVG"); },
     "copy-char": function () { copyText("", "تم نسخ الرمز كنص"); }
   };
@@ -189,14 +257,14 @@
   /* ---------- أمثلة الاستخدام ---------- */
   function refreshCode() {
     $("#code-svg").textContent = current
-      ? variantSvg(current, "currentColor").replace(/(data:image\/png;base64,)[A-Za-z0-9+\/=]+/, "$1...").replace(/\n\s*\n/g, "\n") +
+      ? variantSvg(current, "currentColor").replace(/ d="([^"]{60})[^"]*"/, ' d="$1..."').replace(/\n\s*\n/g, "\n") +
         "\n\n<!-- الكود الكامل بزر «نسخ كود SVG» في قسم التحميل -->"
       : '<svg class="iqd" viewBox="' + VIEWBOX + '" width="1.2em" height="1em"\n' +
       '     fill="currentColor" role="img" aria-label="دينار عراقي">\n' +
       '  <path d="' + PATH.slice(0, 60) + '..."/>\n</svg>\n\n' +
       "<!-- الكود الكامل بزر «نسخ كود SVG» في قسم التحميل -->";
     $("#code-font").textContent =
-      '@font-face{\n  font-family:"IQD Symbol";\n  src:url("iqd-symbol.woff") format("woff");\n' +
+      '@font-face{\n  font-family:"IQD Symbol";\n  src:url("iqd-symbol' + vname() + '.woff") format("woff");\n' +
       '  unicode-range:U+E900; font-display:swap;\n}\n' +
       '.iqd{font-family:"IQD Symbol",sans-serif;font-style:normal;line-height:1}\n\n' +
       '<span class="iqd">&#xE900;</span>';
@@ -236,6 +304,7 @@
   var layers = { parts: true, circles: true, axes: false, grid: false };
   function f(n) { return String(Math.round(n * 100) / 100); }
   function build() {
+    if (current) { buildVariant(current); return; }
     var out = [], ro = R + S / 2, ri = R - S / 2;
     var tipX = 131, tipY = 80;
     if (layers.grid) {
@@ -266,7 +335,8 @@
   $$("#layers input").forEach(function (c) {
     c.addEventListener("change", function () { layers[c.dataset.layer] = c.checked; build(); });
   });
-  build();
+  var savedVariant = safeGet("iqd-variant");
+  pickVariant(VARIANTS.some(function (x) { return x.id === savedVariant; }) ? savedVariant : "original", true);
 
   /* ---------- تثبيت الرمز في الأمكنة المرسومة بـ <use> بدون دعم (احتياط) ---------- */
   if (!("fill" in document.createElementNS("http://www.w3.org/2000/svg", "path").style)) {

@@ -116,42 +116,37 @@
   stage.style.setProperty("--s", $("#sizeRange").value + "px");
   stage.style.setProperty("--mark", color);
 
-  /* ---------- اختيار الرمز (الأصلي افتراضياً) ---------- */
+  /* ---------- اختيار الرمز (الأصلي افتراضياً): يُطبَّق على كل مواضع الرمز في الصفحة ---------- */
   var VARIANTS = Array.isArray(window.IQD_VARIANTS) ? window.IQD_VARIANTS : [];
-  var stageMarkEl = $("#stageMark"), stageImg = $("#stageImg"), picker = $("#picker");
-  function setHidden(el, on) { if (on) el.setAttribute("hidden", ""); else el.removeAttribute("hidden"); }
+  var picker = $("#picker");
+  var ORIG = { id: "original", label: "الرمز الأصلي", w: 110.75, h: 91.5,
+    src: "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + VIEWBOX + '" width="110.75" height="91.5"><path d="' + PATH + '"/></svg>') };
   function pickVariant(id) {
     var v = null;
     VARIANTS.forEach(function (x) { if (x.id === id) v = x; });
     current = v;
     $$("#picker .pick").forEach(function (b) { b.setAttribute("aria-checked", String(b.dataset.id === id)); });
-    if (!v) {
-      setHidden(stageMarkEl, false); setHidden(stageImg, true);
-      return;
+    if (v) {
+      root.style.setProperty("--img", 'url("' + v.src + '")');
+      root.style.setProperty("--mar", v.w + " / " + v.h);
+      root.classList.add("has-variant");
+    } else {
+      root.style.removeProperty("--img");
+      root.style.removeProperty("--mar");
+      root.classList.remove("has-variant");
     }
-    stageImg.style.setProperty("--img", 'url("' + v.src + '")');
-    stageImg.style.setProperty("--ar", v.w + " / " + v.h);
-    stageImg.setAttribute("aria-label", v.label);
-    setHidden(stageMarkEl, true); setHidden(stageImg, false);
+    $("#stageMark").setAttribute("aria-label", v ? v.label : ORIG.label);
+    refreshCode();
   }
-  function addPick(id, label, thumb) {
+  [ORIG].concat(VARIANTS).forEach(function (v) {
     var b = document.createElement("button");
-    b.type = "button"; b.className = "pick"; b.dataset.id = id;
-    b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
-    b.appendChild(thumb);
-    var t = document.createElement("span"); t.textContent = label; b.appendChild(t);
-    b.addEventListener("click", function () { pickVariant(id); });
-    picker.appendChild(b);
-  }
-  var origThumb = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  origThumb.setAttribute("class", "mark"); origThumb.setAttribute("aria-hidden", "true");
-  origThumb.innerHTML = '<use href="#iqd"/>';
-  addPick("original", "الرمز الأصلي", origThumb);
-  VARIANTS.forEach(function (v) {
+    b.type = "button"; b.className = "pick"; b.dataset.id = v.id;
+    b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false"); b.setAttribute("aria-label", v.label);
     var th = document.createElement("span"); th.className = "thumb"; th.setAttribute("aria-hidden", "true");
     th.style.setProperty("--img", 'url("' + v.src + '")');
-    th.style.setProperty("--ar", v.w + " / " + v.h);
-    addPick(v.id, v.label, th);
+    b.appendChild(th);
+    b.addEventListener("click", function () { pickVariant(v.id); });
+    picker.appendChild(b);
   });
   picker.addEventListener("keydown", function (e) {
     var items = $$("#picker .pick"), i = items.indexOf(document.activeElement), n = null;
@@ -187,14 +182,16 @@
   });
   $$("[data-dl]").forEach(function (b) {
     b.addEventListener("click", function () {
-      saveBlob(new Blob([svgString(b.dataset.dl)], { type: "image/svg+xml" }), "iraqi-dinar-symbol-" + b.dataset.name + ".svg");
+      saveBlob(new Blob([svgString(b.dataset.dl)], { type: "image/svg+xml" }), "iraqi-dinar-symbol" + vname() + "-" + b.dataset.name + ".svg");
     });
   });
 
   /* ---------- أمثلة الاستخدام ---------- */
   function refreshCode() {
-    $("#code-svg").textContent =
-      '<svg class="iqd" viewBox="' + VIEWBOX + '" width="1.2em" height="1em"\n' +
+    $("#code-svg").textContent = current
+      ? variantSvg(current, "currentColor").replace(/(data:image\/png;base64,)[A-Za-z0-9+\/=]+/, "$1...").replace(/\n\s*\n/g, "\n") +
+        "\n\n<!-- الكود الكامل بزر «نسخ كود SVG» في قسم التحميل -->"
+      : '<svg class="iqd" viewBox="' + VIEWBOX + '" width="1.2em" height="1em"\n' +
       '     fill="currentColor" role="img" aria-label="دينار عراقي">\n' +
       '  <path d="' + PATH.slice(0, 60) + '..."/>\n</svg>\n\n' +
       "<!-- الكود الكامل بزر «نسخ كود SVG» في قسم التحميل -->";
@@ -204,9 +201,9 @@
       '.iqd{font-family:"IQD Symbol",sans-serif;font-style:normal;line-height:1}\n\n' +
       '<span class="iqd">&#xE900;</span>';
     $("#code-img").textContent =
-      '<img src="iraqi-dinar-symbol.svg" alt="دينار عراقي" height="20">\n\n' +
+      '<img src="iraqi-dinar-symbol' + vname() + '.svg" alt="دينار عراقي" height="20">\n\n' +
       "/* أو كخلفية */\n.price::after{content:\"\";display:inline-block;height:1em;width:1.2em;\n" +
-      "  background:url(iraqi-dinar-symbol.svg) center/contain no-repeat}";
+      "  background:url(iraqi-dinar-symbol" + vname() + ".svg) center/contain no-repeat}";
   }
   $$(".cp").forEach(function (b) {
     b.addEventListener("click", function () {

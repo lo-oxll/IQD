@@ -39,7 +39,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;backgroun
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
 
 /* الرمز المرسوم */
-.mark{display:inline-block;aspect-ratio:110.75/91.5;height:1em;width:auto;color:currentColor;vertical-align:-.12em;fill:currentColor;overflow:visible}
+.mark{display:inline-block;aspect-ratio:var(--mar,110.75/91.5);height:1em;width:auto;color:currentColor;vertical-align:-.12em;fill:currentColor;overflow:visible}
 
 /* الشريط العلوي */
 .top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -72,14 +72,18 @@ h1{margin:0 0 6px;font-size:clamp(30px,7vw,48px);font-weight:800;line-height:1.2
 }
 .stage .mark{color:var(--mark,#12141c)}
 .stage [hidden]{display:none!important}
-.stage-img{height:var(--s,180px);aspect-ratio:var(--ar,1);max-width:90%;background-color:var(--mark,#12141c);-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
 
-/* اختيار الرمز */
-.picker{display:flex;flex-wrap:wrap;gap:8px}
-.pick{flex:0 1 112px;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 12.5px/1.4 "Cairo",sans-serif;cursor:pointer}
-.pick[aria-checked="true"]{outline:3px solid var(--accent);outline-offset:1px;background:var(--surface)}
-.pick .mark{height:44px;color:var(--ink)}
-.thumb{height:44px;aspect-ratio:var(--ar,1);max-width:100%;background-color:var(--ink);-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+/* اختيار الرمز: صف أيقوني واحد بمربعات متساوية */
+.picker{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding:1px}
+.pick{flex:1 1 0;min-width:44px;max-width:84px;aspect-ratio:1;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);cursor:pointer}
+.pick:hover{background:var(--surface)}
+.pick[aria-checked="true"]{background:var(--surface);border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.pick:focus-visible{outline-offset:-3px}
+.thumb{width:58%;height:58%;background-color:var(--ink);-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+
+/* تطبيق الرمز المختار على كل مواضع الرمز */
+:root.has-variant .mark{background-color:currentColor;-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+:root.has-variant .mark use{display:none}
 
 /* عناصر التحكم */
 .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px;text-align:start}

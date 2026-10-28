@@ -44,7 +44,25 @@
   function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   /* ---------- ملف SVG جاهز بلون محدد ---------- */
+  var current = null;   // الرمز المختار (null = الأصلي)
+  function variantSvg(v, color, height) {
+    var wh = height ? ' width="' + (v.w * height / v.h).toFixed(2) + '" height="' + height + '"' : "";
+    var title = "<title>" + v.label + "</title>";
+    var data = v.src.split(",")[1];
+    if (v.src.indexOf("data:image/svg+xml") === 0) {
+      return atob(data)
+        .replace(/fill="#000"/g, 'fill="' + color + '"')
+        .replace(/<svg([^>]*)>/, function (m, a) {
+          return "<svg" + a.replace(/\s(width|height)="[^"]*"/g, "") + wh + ">" + title;
+        });
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + v.w + " " + v.h + '"' + wh + ">" + title +
+      '<filter id="c" x="0" y="0" width="100%" height="100%"><feFlood flood-color="' + color + '"/><feComposite in2="SourceGraphic" operator="in"/></filter>' +
+      '<image filter="url(#c)" width="' + v.w + '" height="' + v.h + '" xlink:href="' + v.src + '"/></svg>';
+  }
+  function vname() { return current ? "-" + current.id : ""; }
   function svgString(color, height) {
+    if (current) return variantSvg(current, color, height);
     var w = 110.75, h = 91.5, k = (height || 91.5) / h;
     var attrs = height ? ' width="' + (w * k).toFixed(2) + '" height="' + height + '"' : "";
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + VIEWBOX + '"' + attrs + '>' +
@@ -105,6 +123,7 @@
   function pickVariant(id) {
     var v = null;
     VARIANTS.forEach(function (x) { if (x.id === id) v = x; });
+    current = v;
     $$("#picker .pick").forEach(function (b) { b.setAttribute("aria-checked", String(b.dataset.id === id)); });
     if (!v) {
       setHidden(stageMarkEl, false); setHidden(stageImg, true);
@@ -145,7 +164,7 @@
 
   /* ---------- التحميل والنسخ ---------- */
   function downloadPng(px, name) {
-    var h = px, w = Math.round(px * 110.75 / 91.5);
+    var h = px, w = Math.round(px * (current ? current.w / current.h : 110.75 / 91.5));
     var img = new Image();
     img.onload = function () {
       var c = document.createElement("canvas"); c.width = w; c.height = h;
@@ -156,10 +175,10 @@
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString(color, h));
   }
   var ACTIONS = {
-    "svg": function () { saveBlob(new Blob([svgString(color)], { type: "image/svg+xml" }), "iraqi-dinar-symbol.svg"); },
-    "png-s": function () { downloadPng(256, "iraqi-dinar-symbol-small.png"); },
-    "png-m": function () { downloadPng(512, "iraqi-dinar-symbol-medium.png"); },
-    "png-l": function () { downloadPng(1024, "iraqi-dinar-symbol-large.png"); },
+    "svg": function () { saveBlob(new Blob([svgString(color)], { type: "image/svg+xml" }), "iraqi-dinar-symbol" + vname() + ".svg"); },
+    "png-s": function () { downloadPng(256, "iraqi-dinar-symbol" + vname() + "-small.png"); },
+    "png-m": function () { downloadPng(512, "iraqi-dinar-symbol" + vname() + "-medium.png"); },
+    "png-l": function () { downloadPng(1024, "iraqi-dinar-symbol" + vname() + "-large.png"); },
     "copy-svg": function () { copyText(svgString(color), "تم نسخ كود SVG"); },
     "copy-char": function () { copyText("", "تم نسخ الرمز كنص"); }
   };

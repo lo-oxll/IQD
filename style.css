@@ -1,0 +1,170 @@
+/* رمز الدينار العراقي: صفحة الرمز فقط. CC0 */
+
+/* خط الرمز: الحرف U+E900 (مضمّن في الملف، بدون أي ملف خارجي) */
+@font-face{
+  font-family:"IQD Symbol";
+  src:url("data:font/woff;base64,d09GRgABAAAAAARkAAoAAAAABkwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABPUy8yAAABZAAAAC4AAABgRsM8vGNtYXAAAAGgAAAAMQAAADzR8RedZ2x5ZgAAAdwAAAETAAABvGLwSdloZWFkAAAA9AAAADYAAAA2MM40tGhoZWEAAAEsAAAAHgAAACQHRwL4aG10eAAAAZQAAAAMAAAADAa5AC1sb2NhAAAB1AAAAAgAAAAIAAAA3m1heHAAAAFMAAAAGAAAACAACADMbmFtZQAAAvAAAAFVAAAChdOVOx1wb3N0AAAESAAAABkAAAAwTLafmwABAAAAAQAA8Asugl8PPPUAAwPoAAAAAOb4DDwAAAAA5v7kyAAtAAADlALQAAAAAwACAAAAAAAAeJxjYGRgYG75zwYkDzLoMugyT2EAiqAAZgBVYgNHAAB4nGNgZGBgYGY4xcDCAAJMDGgAABTIANV4nGNgZnzHtIeBlYGFgTBgFEDi2AMBkFJ4ycDc8p+NAUgy/EJTr8DAAAAsNAb9AAAB9AAAAQQAAAPBAC14nGNgYGBiYGBgBmIRIMkIplkYNIA0G5BmBMoqvGT4/x/IB9P/H4ozgVUBAQCXCAhzAAAAAAAAAAAAAN54nD2PzU0DMRCF/T9rx7vZXQkhRUgIRYhLSJBcANSRXGgiFaQFKqATDhxySw0IcaeARLwZh7zDru15880b5dSjUvbNHNSr+lCfaq9UGcrtcrp8KM8Lul4t5mXQZZjfl6u7r5dxHAeo7/sp1HVdC+U8gVJKMcYmUkOBgg/e+abBB0c8NIRSjDCxN2fuQztTAGMm0ObCbbs2MzfDnqKAISIKkIecc1Zrix/f+BVF9vCQyF2Zp2SALlNuTr/rtdl9n97NQWttjLHWWe8qgCqAYybJKUk56yTPZkyr9ySbJl61RqIayXnALKBAb4QOvPAxIPxHPKesQUUpOicbis7F6pRlAy8rbIaDfvwx2+PTfvMHlnMhXgB4nHVOwU7CQBScQkP0AImJevGy8aSJZcEjFxPgwpmQeC3tBja2XWgLCfyLv+AvePRz/AVn2xVrjLvZ3XnzZuYtgB7e4MEuDxfVbVcLPqsat3GJK4d9XOPe4U6D7+IBTw738IgXujz/nMwtXh1u4QzvDrdxhw+HfXo/He40+C6evRuHe4i9YpaHWzHVWZiL+SFdmmRsktiSFVdTwTf3SygsO5kMxLA/EItM71VehIkIxGa3THQkYpOGOhOxinUUltpk67LcFCMpo1yx3qvIpKnJir7JV7L21BZ5VLmRTJWYIUeILQSm0MiIc+I5DkixhEGCcXXHJ+WPrqkK/uj+TxQn7YR7wHqIfvUuqNfYQ9FT0Gm1Ac8GO3oT9iJWMd0puzbdVorHdkKUfA3ZNVFJV4ERJHfEPOX6Nj2qEtJKW3C2YX9FXXNOc4rEsfqTIar/Kr8ApzZ6cQAAAHicY2BiwA+YQZiRib00L9PV0sAAAAtTAj0AAAA=") format("woff");
+  font-weight:400;font-style:normal;font-display:swap;
+  unicode-range:U+E900;
+}
+.iqd{font-family:"IQD Symbol",sans-serif;font-style:normal;font-weight:400;line-height:1}
+
+:root{
+  --bg:#f3f1ea; --surface:#ffffff; --ink:#12141c; --muted:#6f6a5d; --line:#e4e1d8;
+  --navy:#1b3a6b; --gold:#c8952e; --accent:#1b3a6b; --on-accent:#ffffff;
+  --paper:#f3f1ea; --stage-ink:#12141c;
+  --c1:#1b3a6b; --c2:#c8952e; --c3:#0f6e56; --c4:#a32d2d;
+  --radius:14px;
+}
+:root[data-theme="dark"]{
+  --bg:#0c0e14; --surface:#151926; --ink:#edeff3; --muted:#9aa1ab; --line:#262c3d;
+  --accent:#8fb0f0; --on-accent:#0c0e14;
+  --paper:#f3f1ea;
+  --c1:#8fb0f0; --c2:#e0b45a; --c3:#4cc29a; --c4:#ef8a8a;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0e14; --surface:#151926; --ink:#edeff3; --muted:#9aa1ab; --line:#262c3d;
+    --accent:#8fb0f0; --on-accent:#0c0e14;
+    --c1:#8fb0f0; --c2:#e0b45a; --c3:#4cc29a; --c4:#ef8a8a;
+  }
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cairo",system-ui,"Segoe UI",Tahoma,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+a{color:inherit}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:color-mix(in srgb,var(--ink) 8%,transparent);padding:.1em .4em;border-radius:6px;direction:ltr;unicode-bidi:isolate}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* الرمز المرسوم */
+.mark{display:inline-block;aspect-ratio:110.75/91.5;height:1em;width:auto;color:currentColor;vertical-align:-.12em;fill:currentColor;overflow:visible}
+
+/* الشريط العلوي */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:14px;height:58px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:18px}
+.brand-mark{height:22px;color:var(--accent)}
+.nav{margin-inline-start:auto;display:flex;gap:4px}
+.nav a{text-decoration:none;color:var(--muted);font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+.nav a:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.icon-btn .ico{width:18px;height:18px}
+@media(max-width:640px){.nav{display:none}.icon-btn{margin-inline-start:auto}}
+
+/* البطل */
+.hero{padding-top:42px;text-align:center}
+.eyebrow{display:inline-block;margin:0 0 6px;font-weight:700;font-size:14px;color:var(--accent);letter-spacing:0}
+h1{margin:0 0 6px;font-size:clamp(30px,7vw,48px);font-weight:800;line-height:1.2}
+.lede{max-width:620px;margin:0 auto 22px;color:var(--muted);font-size:clamp(16px,2.6vw,18px)}
+.lede .iqd{color:var(--ink);font-size:1.15em;vertical-align:-.1em}
+
+.stage{display:grid;place-items:center;min-height:340px;border-radius:22px;border:1px solid var(--line);background:var(--paper);color:var(--stage-ink);transition:background .25s,color .25s;overflow:hidden}
+.stage-mark{height:var(--s,180px);max-width:90%}
+.stage[data-bg="paper"]{background:var(--paper)}
+.stage[data-bg="ink"]{background:#12141c}
+.stage[data-bg="gold"]{background:#c8952e}
+.stage[data-bg="grid"]{
+  background-color:var(--paper);
+  background-image:linear-gradient(#0000000d 1px,transparent 1px),linear-gradient(90deg,#0000000d 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.stage .mark{color:var(--mark,#12141c)}
+.stage [hidden]{display:none!important}
+.stage-img{height:var(--s,180px);aspect-ratio:var(--ar,1);max-width:90%;background-color:var(--mark,#12141c);-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+
+/* اختيار الرمز */
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.pick{flex:0 1 112px;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:600 12.5px/1.4 "Cairo",sans-serif;cursor:pointer}
+.pick[aria-checked="true"]{outline:3px solid var(--accent);outline-offset:1px;background:var(--surface)}
+.pick .mark{height:44px;color:var(--ink)}
+.thumb{height:44px;aspect-ratio:var(--ar,1);max-width:100%;background-color:var(--ink);-webkit-mask:var(--img) center/contain no-repeat;mask:var(--img) center/contain no-repeat}
+
+/* عناصر التحكم */
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px;text-align:start}
+.ctl{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ctl-wide{grid-column:1/-1}
+.ctl-label{font-weight:700;font-size:14px;color:var(--muted)}
+.swatches{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--c);cursor:pointer;padding:0;position:relative}
+.sw[aria-checked="true"]{outline:3px solid var(--accent);outline-offset:2px}
+.sw-pick{background:conic-gradient(#e24b4a,#e5a93d,#4fb36d,#3a7bd5,#8a4fd0,#e24b4a);overflow:hidden;display:inline-block}
+.sw-pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.seg{display:flex;background:color-mix(in srgb,var(--ink) 7%,transparent);border-radius:999px;padding:3px;gap:2px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font:600 14px "Cairo",sans-serif;padding:7px 8px;border-radius:999px;cursor:pointer}
+.seg button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px #0003}
+.size-row{display:flex;align-items:center;gap:12px;direction:ltr;color:var(--muted)}
+.size-min{height:14px}.size-max{height:34px}
+input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+
+/* الأقسام */
+.sec{padding-top:54px}
+h2{margin:0 0 4px;font-size:clamp(24px,5vw,30px);font-weight:800}
+.sec-sub{margin:0 0 16px;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:700 15px "Cairo",sans-serif;padding:10px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn.ghost{border-color:var(--line)}
+.note{margin:12px 0 0;color:var(--muted);font-size:15px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px}
+.tile{margin:0;border-radius:16px;border:1px solid var(--line);padding:22px 14px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.tile .mark{height:64px}
+.tile figcaption{font-size:14px;font-weight:600}
+.t-paper{background:#f3f1ea;color:#12141c}
+.t-ink{background:#12141c;color:#fff}
+.mini{font:700 13px "Cairo",sans-serif;padding:5px 16px;border-radius:999px;border:1.5px solid currentColor;background:transparent;color:inherit;cursor:pointer}
+
+/* الاستخدام */
+.tabs{display:flex;gap:4px;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:4px;border-radius:999px;width:max-content;max-width:100%;overflow-x:auto}
+.tabs button{border:0;background:none;color:var(--muted);font:700 14px "Cairo",sans-serif;padding:8px 16px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px #0003}
+.panel{margin-top:14px}
+.panel[hidden]{display:none}
+.code{position:relative;background:#12141c;color:#e8e6df;border-radius:12px;padding:14px 14px 14px 70px;direction:ltr;text-align:left;overflow-x:auto}
+.code pre{margin:0;font:13px/1.65 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+.cp{position:absolute;left:8px;top:8px;background:var(--gold);color:#12141c;border:0;border-radius:8px;padding:4px 12px;font:700 13px "Cairo",sans-serif;cursor:pointer}
+.live{display:flex;align-items:center;gap:10px;margin:14px 0 0}
+.live .big{font-size:48px;color:var(--ink)}
+.muted{color:var(--muted)}
+
+/* البناء */
+.build{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:760px){.build{grid-template-columns:1fr}}
+.build-fig{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px}
+#buildSvg{width:100%;height:auto;display:block;max-height:560px}
+#buildSvg .part{fill:var(--p);fill-opacity:.88}
+#buildSvg .part.arc{fill:none;stroke:var(--p);stroke-opacity:.88}
+#buildSvg .p1{--p:var(--c1)} #buildSvg .p2{--p:var(--c2)} #buildSvg .p3{--p:var(--c3)} #buildSvg .p4{--p:var(--c4)}
+#buildSvg .plain{fill:var(--ink);fill-opacity:.9}
+#buildSvg .plain.arc{fill:none;stroke:var(--ink)}
+#buildSvg .circ{fill:none;stroke:var(--accent);stroke-width:.9;stroke-linecap:round;stroke-dasharray:.1 3.2}
+#buildSvg .axis{fill:none;stroke:var(--ink);stroke-width:.5;stroke-dasharray:3 2.4;opacity:.75}
+#buildSvg .gridline{stroke:var(--muted);stroke-width:.3;opacity:.45}
+#buildSvg .ctr{stroke:var(--ink);stroke-width:.7}
+#buildSvg text{font:700 7px "Cairo",sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:2px;stroke-linejoin:round}
+.layers{display:grid;gap:6px;margin-bottom:12px}
+.chk{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-weight:600;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.legend,.rules{list-style:none;margin:0;padding:0}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-bottom:12px;font-size:15px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+.d1{background:var(--c1)}.d2{background:var(--c2)}.d3{background:var(--c3)}.d4{background:var(--c4)}
+.rules li{position:relative;padding-inline-start:18px;margin:4px 0;color:var(--muted);font-size:15px}
+.rules li::before{content:"";position:absolute;inset-inline-start:0;top:.7em;width:8px;height:2px;background:var(--accent)}
+
+/* البطاقات */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card h3{margin:0 0 4px;font-size:18px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+
+.foot{display:flex;align-items:center;justify-content:center;gap:10px;padding:46px 16px 54px;color:var(--muted);font-size:15px}
+.foot .mark{height:18px;color:var(--accent)}
+
+.toast{position:fixed;inset-inline:0;bottom:22px;margin:auto;width:max-content;max-width:90vw;background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:none}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}

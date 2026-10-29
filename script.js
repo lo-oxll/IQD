@@ -172,13 +172,13 @@
     svg.setAttribute("viewBox", [v.vb[0] - p, v.vb[1] - p, v.vb[2] + 2 * p, v.vb[3] + 2 * p].join(" "));
     svg.setAttribute("aria-label", "مخطط بناء الرمز المختار بقطعه ونقاطه");
     sub.textContent = "القطع التي يتكوّن منها الرمز المختار. فعّل الطبقات لترى كل جزء.";
-    ["القطع", "نقاط الرسم", "إطار كل قطعة", "شبكة مرجعية"].forEach(function (t, i) { spans[i].textContent = t; });
+    ["القطع", v.circ ? "الدائرتان" : "نقاط الرسم", "إطار كل قطعة", "شبكة مرجعية"].forEach(function (t, i) { spans[i].textContent = t; });
     legend.innerHTML = v.parts.map(function (x, i) {
       return '<li><i class="dot d' + (i % 4 + 1) + '"></i> القطعة ' + (i + 1) + "</li>";
     }).join("");
     rules.innerHTML =
       "<li>عدد القطع: " + v.parts.length + ".</li>" +
-      "<li>عدد نقاط الرسم: " + v.pts.length + ".</li>" +
+      (v.circ ? "<li>القوس مكوّن من دائرتين متناظرتين، نصف قطر كل منهما " + v.circ[0][2] + " وحدة.</li>" : "<li>عدد نقاط الرسم: " + v.pts.length + ".</li>") +
       "<li>نسبة العرض إلى الارتفاع: " + (v.w / v.h).toFixed(2) + ".</li>" +
       (isPng ? "<li>القطع مستخرجة من الصورة بالتتبّع، فحوافها تقريبية.</li>" : "");
   }
@@ -197,9 +197,15 @@
     if (layers.axes) v.parts.forEach(function (q) {
       out.push('<rect class="vaxis" x="' + q.bb[0] + '" y="' + q.bb[1] + '" width="' + f(q.bb[2] - q.bb[0]) + '" height="' + f(q.bb[3] - q.bb[1]) + '"/>');
     });
-    if (layers.circles) v.pts.forEach(function (p) {
-      out.push('<circle class="vpt" cx="' + p[0] + '" cy="' + p[1] + '" r="' + f(r) + '"/>');
-    });
+    if (layers.circles) {
+      if (v.circ) v.circ.forEach(function (c) {
+        out.push('<circle class="vcirc" cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '"/>');
+        out.push('<circle class="vpt" cx="' + c[0] + '" cy="' + c[1] + '" r="' + f(r) + '"/>');
+      });
+      else v.pts.forEach(function (p) {
+        out.push('<circle class="vpt" cx="' + p[0] + '" cy="' + p[1] + '" r="' + f(r) + '"/>');
+      });
+    }
     $("#buildSvg").innerHTML = out.join("");
   }
   [ORIG].concat(VARIANTS).forEach(function (v) {

@@ -150,6 +150,8 @@ h2{margin:0 0 4px;font-size:clamp(24px,5vw,30px);font-weight:800}
 #buildSvg .vaxis{fill:none;stroke:var(--ink);stroke-width:1.2px;vector-effect:non-scaling-stroke;stroke-dasharray:5 4;opacity:.75}
 #buildSvg .vgrid{stroke:var(--muted);stroke-width:1px;vector-effect:non-scaling-stroke;opacity:.4}
 #buildSvg .vcirc{fill:none;stroke:var(--accent);stroke-width:1.6px;vector-effect:non-scaling-stroke;stroke-dasharray:2 5;stroke-linecap:round}
+#buildSvg .vdimh{stroke:var(--surface);stroke-width:4px;vector-effect:non-scaling-stroke;stroke-linecap:round}
+#buildSvg .vdim{stroke:var(--ink);stroke-width:1.3px;vector-effect:non-scaling-stroke;stroke-linecap:round}
 #buildSvg .vpt{fill:var(--accent);stroke:var(--surface);stroke-width:1px;vector-effect:non-scaling-stroke}
 #buildSvg .ctr{stroke:var(--ink);stroke-width:.7}
 #buildSvg text{font:700 7px "Cairo",sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:2px;stroke-linejoin:round}

@@ -164,42 +164,88 @@
     };
     if (!v) {
       svg.setAttribute("viewBox", buildMeta.vb); svg.setAttribute("aria-label", buildMeta.label);
-      sub.textContent = buildMeta.sub; legend.innerHTML = buildMeta.legend; rules.innerHTML = buildMeta.rules;
+      sub.textContent = buildMeta.sub; legend.innerHTML = buildMeta.legend;
+      var ro0 = R + S / 2, ri0 = R - S / 2;
+      rules.innerHTML = buildMeta.rules +
+        "<li>القياسات بوحدة يساوي ارتفاع الرمز الكامل فيها 100.</li>" +
+        "<li>أقطار الدائرتين: الخارجي " + fmt(2 * ro0 * K0) + "، ومحور القوس " + fmt(2 * R * K0) + "، والداخلي " + fmt(2 * ri0 * K0) + ".</li>" +
+        "<li>العمود الطويل (القائم والساق): الطول " + fmt(91.5 * K0) + " × العرض " + fmt(S * K0) + ".</li>" +
+        "<li>العمود القصير (الذيل): الطول " + fmt(40 * K0) + " × العرض " + fmt(S * K0) + ".</li>";
       spans.forEach(function (s, i) { s.textContent = buildMeta.spans[i]; });
+      spans[1].textContent += " وأقطارهما"; spans[2].textContent += " وقياساتها";
       return;
     }
-    var p = Math.max(v.vb[2], v.vb[3]) * 0.08, isPng = v.src.indexOf("data:image/png") === 0;
-    svg.setAttribute("viewBox", [v.vb[0] - p, v.vb[1] - p, v.vb[2] + 2 * p, v.vb[3] + 2 * p].join(" "));
-    svg.setAttribute("aria-label", "مخطط بناء الرمز المختار بقطعه ونقاطه");
-    sub.textContent = "القطع التي يتكوّن منها الرمز المختار. فعّل الطبقات لترى كل جزء.";
-    ["القطع", v.circ ? "الدائرتان" : "نقاط الرسم", "إطار كل قطعة", "شبكة مرجعية"].forEach(function (t, i) { spans[i].textContent = t; });
+    var isPng = v.src.indexOf("data:image/png") === 0, sc = v.sc;
+    svg.setAttribute("aria-label", "مخطط بناء الرمز المختار بقطعه ودوائره وقياساته");
+    sub.textContent = "القطع والدوائر والقياسات التي يتكوّن منها الرمز المختار. فعّل الطبقات لترى كل جزء.";
+    ["القطع", v.circ ? "الدوائر والأقطار" : "نقاط الرسم", "الأطر والقياسات", "شبكة مرجعية"].forEach(function (t, i) { spans[i].textContent = t; });
     legend.innerHTML = v.parts.map(function (x, i) {
       return '<li><i class="dot d' + (i % 4 + 1) + '"></i> القطعة ' + (i + 1) + "</li>";
     }).join("");
-    rules.innerHTML =
-      "<li>عدد القطع: " + v.parts.length + ".</li>" +
-      (v.circ ? "<li>القوس مكوّن من دائرتين متناظرتين، نصف قطر كل منهما " + v.circ[0][2] + " وحدة.</li>" : "<li>عدد نقاط الرسم: " + v.pts.length + ".</li>") +
-      "<li>نسبة العرض إلى الارتفاع: " + (v.w / v.h).toFixed(2) + ".</li>" +
-      (isPng ? "<li>القطع مستخرجة من الصورة بالتتبّع، فحوافها تقريبية.</li>" : "");
+    var rl = ["القياسات بوحدة يساوي ارتفاع الرمز الكامل فيها 100."];
+    if (v.circ) rl.push("القوس مكوّن من " + (v.circ.length === 2 ? "دائرتين متناظرتين، قطر كل منهما " : "دائرة قطرها ") + fmt(2 * v.circ[0][2] * sc) +
+      " (انحراف المطابقة نحو " + (Math.round(v.cres * sc * 100) / 100) + " وحدة).");
+    if (v.thk) rl.push("سماكة القوس عند الرأس: " + fmt((v.thk[1] - v.thk[0]) * sc) + ".");
+    (v.dims || []).forEach(function (d) {
+      var wedge = d.n.indexOf("إسفين") === 0;
+      rl.push(d.n + ": الطول " + fmt(d.o[2] * sc) + " × " + (wedge ? "أقصى عرض " : "العرض ") + fmt(d.o[3] * sc) + (d.partial ? " (الجزء الظاهر منه)." : "."));
+    });
+    rl.push("عدد القطع: " + v.parts.length + ".");
+    if (isPng) rl.push("القطع مستخرجة من الصورة بالتتبّع، فحوافها وقياساتها تقريبية.");
+    rules.innerHTML = rl.map(function (t) { return "<li>" + t + "</li>"; }).join("");
+  }
+  function fmt(n) { return String(Math.round(n * 10) / 10); }
+  /* خط قياس بنهايتين وقيمة في منتصفه */
+  function dimSvg(x1, y1, x2, y2, txt, fs, tp, dy) {
+    tp = tp == null ? 0.5 : tp; dy = dy || 0;
+    var dx = x2 - x1, dyy = y2 - y1, dy0 = dyy * tp, L = Math.hypot(dx, dyy) || 1, t = fs * 0.45, nx = -dyy / L * t, ny = dx / L * t, o = [];
+    var segs = [[x1, y1, x2, y2], [x1 - nx, y1 - ny, x1 + nx, y1 + ny], [x2 - nx, y2 - ny, x2 + nx, y2 + ny]];
+    ["vdimh", "vdim"].forEach(function (c) {
+      segs.forEach(function (q) { o.push('<line class="' + c + '" x1="' + f(q[0]) + '" y1="' + f(q[1]) + '" x2="' + f(q[2]) + '" y2="' + f(q[3]) + '"/>'); });
+    });
+    o.push('<text class="vdt" x="' + f(x1 + dx * tp) + '" y="' + f(y1 + dy0 + dy) + '" text-anchor="middle" dominant-baseline="central" style="font-size:' + f(fs) + 'px;stroke-width:' + f(fs * 0.3) + 'px">' + txt + "</text>");
+    return o.join("");
+  }
+  function variantBounds(v) {
+    var x = v.vb[0], y = v.vb[1], w = v.vb[2], h = v.vb[3], b = [x, y, x + w, y + h];
+    if (layers.circles && v.circ) v.circ.forEach(function (c) {
+      b = [Math.min(b[0], c[0] - c[2]), Math.min(b[1], c[1] - c[2]), Math.max(b[2], c[0] + c[2]), Math.max(b[3], c[1] + c[2])];
+    });
+    var p = Math.max(b[2] - b[0], b[3] - b[1]) * (layers.circles && v.circ ? 0.05 : 0.14);
+    return [b[0] - p, b[1] - p, b[2] + p, b[3] + p];
   }
   function buildVariant(v) {
-    var out = [], x = v.vb[0], y = v.vb[1], w = v.vb[2], h = v.vb[3];
-    var pad = Math.max(w, h) * 0.08, r = Math.max(w, h) * 0.011;
-    var X1 = x + w + pad, Y1 = y + h + pad, step = h / 10;
+    var out = [], x = v.vb[0], y = v.vb[1], w = v.vb[2], h = v.vb[3], B = variantBounds(v);
+    var bw = B[2] - B[0], bh = B[3] - B[1], big = Math.max(bw, bh), r = big * 0.009, fs = big * 0.03, sc = v.sc;
+    $("#buildSvg").setAttribute("viewBox", [B[0], B[1], bw, bh].join(" "));
+    var step = h / 10;
     if (layers.grid) {
       var gx, gy;
-      for (gx = x - Math.floor(pad / step) * step; gx <= X1; gx += step) out.push('<line class="vgrid" x1="' + f(gx) + '" y1="' + f(y - pad) + '" x2="' + f(gx) + '" y2="' + f(Y1) + '"/>');
-      for (gy = y - Math.floor(pad / step) * step; gy <= Y1; gy += step) out.push('<line class="vgrid" x1="' + f(x - pad) + '" y1="' + f(gy) + '" x2="' + f(X1) + '" y2="' + f(gy) + '"/>');
+      for (gx = x - Math.ceil((x - B[0]) / step) * step; gx <= B[2]; gx += step) out.push('<line class="vgrid" x1="' + f(gx) + '" y1="' + f(B[1]) + '" x2="' + f(gx) + '" y2="' + f(B[3]) + '"/>');
+      for (gy = y - Math.ceil((y - B[1]) / step) * step; gy <= B[3]; gy += step) out.push('<line class="vgrid" x1="' + f(B[0]) + '" y1="' + f(gy) + '" x2="' + f(B[2]) + '" y2="' + f(gy) + '"/>');
     }
     v.parts.forEach(function (q, i) {
       out.push('<path class="' + (layers.parts ? "part p" + (i % 4 + 1) : "plain") + '" fill-rule="' + (q.eo ? "evenodd" : "nonzero") + '" d="' + q.d + '"/>');
     });
-    if (layers.axes) v.parts.forEach(function (q) {
-      out.push('<rect class="vaxis" x="' + q.bb[0] + '" y="' + q.bb[1] + '" width="' + f(q.bb[2] - q.bb[0]) + '" height="' + f(q.bb[3] - q.bb[1]) + '"/>');
-    });
+    if (layers.axes) {
+      v.parts.forEach(function (q) {
+        out.push('<rect class="vaxis" x="' + q.bb[0] + '" y="' + q.bb[1] + '" width="' + f(q.bb[2] - q.bb[0]) + '" height="' + f(q.bb[3] - q.bb[1]) + '"/>');
+      });
+      var gap = big * 0.04, cx0 = x + w / 2, cy0 = y + h / 2;
+      (v.dims || []).forEach(function (d) {
+        var o = d.o, ux = o[4], uy = o[5], vx = -uy, vy = ux, sv = ((o[0] - cx0) * vx + (o[1] - cy0) * vy) >= 0 ? 1 : -1, s2 = o[6];
+        var off = o[3] / 2 + gap, end = o[2] / 2 + gap;
+        out.push(dimSvg(o[0] - ux * o[2] / 2 + vx * sv * off, o[1] - uy * o[2] / 2 + vy * sv * off,
+                        o[0] + ux * o[2] / 2 + vx * sv * off, o[1] + uy * o[2] / 2 + vy * sv * off, fmt(o[2] * sc), fs));
+        out.push(dimSvg(o[0] + ux * s2 * end - vx * o[3] / 2, o[1] + uy * s2 * end - vy * o[3] / 2,
+                        o[0] + ux * s2 * end + vx * o[3] / 2, o[1] + uy * s2 * end + vy * o[3] / 2, fmt(o[3] * sc), fs));
+      });
+      if (v.thk) out.push(dimSvg(v.thk[0], v.thk[2], v.thk[1], v.thk[2], fmt((v.thk[1] - v.thk[0]) * sc), fs));
+    }
     if (layers.circles) {
       if (v.circ) v.circ.forEach(function (c) {
         out.push('<circle class="vcirc" cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '"/>');
+        out.push(dimSvg(c[0] - c[2], c[1], c[0] + c[2], c[1], "قطر " + fmt(2 * c[2] * sc), fs, 0.2, -fs * 0.95));
         out.push('<circle class="vpt" cx="' + c[0] + '" cy="' + c[1] + '" r="' + f(r) + '"/>');
       });
       else v.pts.forEach(function (p) {
@@ -309,6 +355,7 @@
   /* ---------- مخطط البناء ---------- */
   var layers = { parts: true, circles: true, axes: false, grid: false };
   function f(n) { return String(Math.round(n * 100) / 100); }
+  var K0 = 100 / 91.5;   // تحويل وحدات الرمز الأصلي إلى (ارتفاع الرمز = 100)
   function build() {
     if (current) { buildVariant(current); return; }
     var out = [], ro = R + S / 2, ri = R - S / 2;
@@ -329,12 +376,18 @@
         });
         out.push('<path class="ctr" d="M60 ' + f(cy) + "H72M66 " + f(cy - 6) + "V" + f(cy + 6) + '"/>');
       });
-      out.push('<text x="82" y="' + f(CA + 2.5) + '">مركز A</text><text x="82" y="' + f(CB + 2.5) + '">مركز B</text>');
+      out.push('<text x="72" y="' + f(CA + 10) + '">مركز A</text><text x="72" y="' + f(CB + 10) + '">مركز B</text>');
+      [CA, CB].forEach(function (cy) { out.push(dimSvg(66 - ro, cy, 66 + ro, cy, "قطر " + fmt(2 * ro * K0), 5.5, 0.15, -5.5)); });
     }
     if (layers.axes) {
       out.push('<path class="axis" d="M43 40V120M66 40V120"/>');
       out.push('<path class="axis" d="M66 40A' + f(R) + " " + f(R) + " 0 0 1 " + tipX + " " + tipY + "A" + f(R) + " " + f(R) + ' 0 0 1 66 120"/>');
       out.push('<path class="axis" d="M108 106H148"/>');
+      out.push(dimSvg(30, 34.25, 30, 125.75, fmt(91.5 * K0), 5.5));
+      out.push(dimSvg(37.25, 28, 48.75, 28, fmt(S * K0), 5.5));
+      out.push(dimSvg(60.25, 28, 71.75, 28, fmt(S * K0), 5.5));
+      out.push(dimSvg(108, 118, 148, 118, fmt(40 * K0), 5.5));
+      out.push(dimSvg(153, 100.25, 153, 111.75, fmt(S * K0), 5.5));
     }
     $("#buildSvg").innerHTML = out.join("");
   }
